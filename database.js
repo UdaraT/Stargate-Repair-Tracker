@@ -1,10 +1,13 @@
-
 const { createClient } = require('@libsql/client');
 
-// Connects to local fallback if ENV vars aren't present during development
+// Sanitize inputs to remove hidden spaces or quotes
+const rawUrl = (process.env.TURSO_DATABASE_URL || '').trim();
+const rawToken = (process.env.TURSO_AUTH_TOKEN || '').trim();
+
+// Use Turso if URL is present, otherwise fallback to local SQLite file
 const db = createClient({
-  url: process.env.TURSO_DATABASE_URL || 'file:repairs.db',
-  authToken: process.env.TURSO_AUTH_TOKEN || '',
+  url: rawUrl || 'file:repairs.db',
+  authToken: rawToken || undefined,
 });
 
 // Create tables automatically on startup
