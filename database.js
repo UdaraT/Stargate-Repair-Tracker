@@ -1,16 +1,18 @@
 const { createClient } = require('@libsql/client');
 
-// Sanitize inputs to remove hidden spaces or quotes
-const rawUrl = (process.env.TURSO_DATABASE_URL || '').trim();
+// Sanitize URL and convert libsql:// or http:// to https://
+let rawUrl = (process.env.TURSO_DATABASE_URL || '').trim();
+if (rawUrl.startsWith('libsql://')) {
+  rawUrl = rawUrl.replace('libsql://', 'https://');
+}
+
 const rawToken = (process.env.TURSO_AUTH_TOKEN || '').trim();
 
-// Use Turso if URL is present, otherwise fallback to local SQLite file
 const db = createClient({
   url: rawUrl || 'file:repairs.db',
   authToken: rawToken || undefined,
 });
 
-// Create tables automatically on startup
 async function initDb() {
   try {
     await db.execute(`
