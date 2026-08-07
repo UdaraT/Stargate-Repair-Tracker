@@ -1,0 +1,1505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Star Gate Technologies — Repair Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    /* ── Reset & Variables ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue-brand:  #1a56db;
+      --blue-deep:   #0f2352;
+      --blue-light:  #3b82f6;
+      --red-accent:  #ef4444;
+      --green:       #10b981;
+      --amber:       #f59e0b;
+      --purple:      #7c3aed;
+      --slate-900:   #0f172a;
+      --slate-800:   #1e293b;
+      --slate-700:   #334155;
+      --slate-600:   #475569;
+      --slate-500:   #64748b;
+      --slate-400:   #94a3b8;
+      --slate-200:   #e2e8f0;
+      --slate-100:   #f1f5f9;
+      --white:       #ffffff;
+      --sidebar-w:   260px;
+      --header-h:    68px;
+      --radius-sm:   8px;
+      --radius-md:   12px;
+      --radius-lg:   18px;
+      --shadow-card: 0 4px 24px rgba(0,0,0,0.07);
+      --shadow-sm:   0 2px 8px rgba(0,0,0,0.06);
+      --transition:  0.2s cubic-bezier(0.4,0,0.2,1);
+    }
+
+    html, body { height: 100%; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--slate-100);
+      color: var(--slate-700);
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ─────────────── TOP NAV BAR ─────────────── */
+    .topbar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: var(--header-h);
+      background: var(--white);
+      border-bottom: 1px solid var(--slate-200);
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
+      gap: 16px;
+      z-index: 100;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      padding: 8px;
+      border-radius: 8px;
+      transition: background var(--transition);
+      border: none;
+      background: none;
+    }
+    .hamburger:hover { background: var(--slate-100); }
+    .hamburger span {
+      width: 22px; height: 2px;
+      background: var(--slate-700);
+      border-radius: 2px;
+      transition: transform 0.3s, opacity 0.3s;
+      display: block;
+    }
+    .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    .topbar-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .topbar-logo {
+      height: 42px;
+      object-fit: contain;
+    }
+
+    .topbar-logo-fallback {
+      width: 42px; height: 42px;
+      background: linear-gradient(135deg, var(--blue-brand), var(--purple));
+      border-radius: 10px;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+
+    .topbar-title-group h1 {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--blue-brand);
+      letter-spacing: 0.5px;
+      line-height: 1.1;
+    }
+    .topbar-title-group p {
+      font-size: 11px;
+      color: var(--slate-500);
+    }
+
+    .topbar-right {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .topbar-hotline {
+      font-size: 12px;
+      color: var(--slate-500);
+      text-align: right;
+    }
+    .topbar-hotline strong { color: var(--slate-700); }
+
+    .user-chip {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--slate-100);
+      border-radius: 100px;
+      padding: 6px 14px 6px 6px;
+      cursor: pointer;
+      transition: background var(--transition);
+      border: 1px solid var(--slate-200);
+    }
+    .user-chip:hover { background: var(--slate-200); }
+
+    .user-avatar {
+      width: 30px; height: 30px;
+      background: linear-gradient(135deg, var(--blue-brand), var(--purple));
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      color: white;
+      font-weight: 700;
+    }
+
+    .user-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--slate-700);
+    }
+    .user-role {
+      font-size: 10px;
+      color: var(--slate-500);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .btn-logout {
+      background: none;
+      border: 1px solid var(--slate-200);
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--slate-600);
+      cursor: pointer;
+      transition: all var(--transition);
+      font-family: 'Inter', sans-serif;
+    }
+    .btn-logout:hover { background: #fee2e2; border-color: #fca5a5; color: var(--red-accent); }
+
+    /* ─────────────── MAIN LAYOUT ─────────────── */
+    .page-body {
+      display: flex;
+      margin-top: var(--header-h);
+      min-height: calc(100vh - var(--header-h));
+    }
+
+    /* ─────────────── SIDEBAR ─────────────── */
+    .sidebar {
+      width: var(--sidebar-w);
+      background: var(--white);
+      border-right: 1px solid var(--slate-200);
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: var(--header-h);
+      left: 0;
+      bottom: 0;
+      overflow-y: auto;
+      z-index: 90;
+      transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+    }
+
+    .sidebar-section {
+      padding: 20px 16px 8px;
+    }
+
+    .sidebar-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--slate-400);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding: 0 8px;
+      margin-bottom: 6px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--slate-600);
+      transition: all var(--transition);
+      margin-bottom: 2px;
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+    }
+    .nav-item:hover { background: var(--slate-100); color: var(--slate-800); }
+    .nav-item.active { background: #dbeafe; color: var(--blue-brand); font-weight: 600; }
+    .nav-item .nav-icon { font-size: 16px; width: 22px; text-align: center; }
+
+    .sidebar-divider {
+      height: 1px;
+      background: var(--slate-200);
+      margin: 12px 16px;
+    }
+
+    /* Stats in sidebar */
+    .stat-pills {
+      padding: 0 16px 16px;
+    }
+
+    .stat-pill {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 12px;
+      border-radius: var(--radius-sm);
+      margin-bottom: 6px;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .stat-pill .count {
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .pill-pending  { background: #fef9c3; color: #854d0e; }
+    .pill-progress { background: #dbeafe; color: #1e40af; }
+    .pill-completed{ background: #dcfce7; color: #166534; }
+    .pill-delivered{ background: #ede9fe; color: #5b21b6; }
+    .pill-cancelled{ background: #fee2e2; color: #9f1239; }
+
+    /* ─────────────── CONTENT ─────────────── */
+    .content-area {
+      margin-left: var(--sidebar-w);
+      flex: 1;
+      padding: 28px;
+      min-width: 0;
+    }
+
+    /* ─────────────── PANELS ─────────────── */
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .panel-title {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--slate-800);
+      letter-spacing: -0.3px;
+    }
+
+    .panel-subtitle {
+      font-size: 13px;
+      color: var(--slate-500);
+      margin-top: 2px;
+    }
+
+    /* ─────────────── CARDS ─────────────── */
+    .card {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-card);
+      border: 1px solid var(--slate-200);
+    }
+
+    .card-body { padding: 28px; }
+
+    .card-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--blue-brand);
+      margin-bottom: 20px;
+      padding-bottom: 14px;
+      border-bottom: 2px solid var(--slate-100);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* ─────────────── FORM ─────────────── */
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-group.full { grid-column: 1 / -1; }
+
+    .form-group label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--slate-500);
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 11px 14px;
+      border: 1.5px solid var(--slate-200);
+      border-radius: var(--radius-sm);
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      color: var(--slate-700);
+      background: var(--slate-100);
+      outline: none;
+      transition: border-color var(--transition), box-shadow var(--transition), background var(--transition);
+    }
+
+    .form-input:focus {
+      border-color: var(--blue-light);
+      background: var(--white);
+      box-shadow: 0 0 0 3px rgba(59,130,246,0.15);
+    }
+
+    .form-input::placeholder { color: var(--slate-400); }
+
+    textarea.form-input { resize: vertical; min-height: 80px; }
+
+    /* Status select in form — styled with color */
+    select.form-input { cursor: pointer; }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--blue-brand), #4f46e5);
+      color: white;
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: 13px 20px;
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all var(--transition);
+      box-shadow: 0 4px 16px rgba(26,86,219,0.3);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      justify-content: center;
+      width: 100%;
+    }
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 24px rgba(26,86,219,0.4);
+    }
+    .btn-primary:active { transform: translateY(0); }
+
+    .btn-success {
+      background: linear-gradient(135deg, #059669, #10b981) !important;
+      box-shadow: 0 4px 16px rgba(16,185,129,0.3) !important;
+    }
+    .btn-success:hover {
+      box-shadow: 0 8px 24px rgba(16,185,129,0.4) !important;
+    }
+
+    .btn-secondary {
+      background: var(--slate-100);
+      color: var(--slate-600);
+      border: 1.5px solid var(--slate-200);
+      border-radius: var(--radius-sm);
+      padding: 11px 16px;
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+    .btn-secondary:hover { background: var(--slate-200); color: var(--slate-800); }
+
+    .form-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    /* ─────────────── STATUS BADGES ─────────────── */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 10px;
+      border-radius: 100px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      white-space: nowrap;
+    }
+    .badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
+
+    .badge-pending   { background: #fef9c3; color: #854d0e; }
+    .badge-pending::before { background: #eab308; }
+    .badge-progress  { background: #dbeafe; color: #1e40af; }
+    .badge-progress::before { background: var(--blue-light); }
+    .badge-completed { background: #dcfce7; color: #166534; }
+    .badge-completed::before { background: var(--green); }
+    .badge-delivered { background: #ede9fe; color: #5b21b6; }
+    .badge-delivered::before { background: var(--purple); }
+    .badge-cancelled { background: #fee2e2; color: #9f1239; }
+    .badge-cancelled::before { background: var(--red-accent); }
+
+    /* ─────────────── DASHBOARD TABLE AREA ─────────────── */
+    .dashboard-controls {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .search-input {
+      flex: 1;
+      min-width: 220px;
+      padding: 11px 16px 11px 42px;
+      border: 1.5px solid var(--slate-200);
+      border-radius: var(--radius-sm);
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      color: var(--slate-700);
+      background: var(--white);
+      outline: none;
+      transition: border-color var(--transition), box-shadow var(--transition);
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: 14px center;
+    }
+    .search-input:focus { border-color: var(--blue-light); box-shadow: 0 0 0 3px rgba(59,130,246,0.12); }
+    .search-input::placeholder { color: var(--slate-400); }
+
+    .filter-tabs {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .filter-tab {
+      padding: 8px 14px;
+      border-radius: 100px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1.5px solid var(--slate-200);
+      background: var(--white);
+      color: var(--slate-600);
+      transition: all var(--transition);
+      white-space: nowrap;
+    }
+    .filter-tab:hover { border-color: var(--blue-light); color: var(--blue-brand); }
+    .filter-tab.active { background: var(--blue-brand); color: white; border-color: var(--blue-brand); }
+
+    /* ─────────────── TABLE ─────────────── */
+    .table-wrapper {
+      overflow-x: auto;
+      border-radius: var(--radius-md);
+    }
+
+    .repair-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .repair-table thead {
+      background: var(--slate-100);
+    }
+
+    .repair-table th {
+      padding: 12px 14px;
+      text-align: left;
+      font-weight: 700;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--slate-500);
+      white-space: nowrap;
+      border-bottom: 2px solid var(--slate-200);
+    }
+
+    .repair-table td {
+      padding: 14px;
+      border-bottom: 1px solid var(--slate-100);
+      vertical-align: middle;
+    }
+
+    .repair-table tbody tr {
+      transition: background var(--transition);
+    }
+    .repair-table tbody tr:hover { background: #f8faff; }
+    .repair-table tbody tr:last-child td { border-bottom: none; }
+
+    .cell-id strong { font-size: 13px; font-weight: 700; color: var(--slate-800); }
+    .cell-id .date { font-size: 11px; color: var(--slate-400); margin-top: 2px; }
+
+    .cell-customer .name { font-weight: 600; color: var(--slate-800); }
+    .cell-customer .phone { font-size: 11px; color: var(--slate-500); margin-top: 2px; }
+
+    .cell-device .model { font-weight: 600; color: var(--slate-700); }
+    .cell-device .imei { font-size: 11px; color: var(--slate-400); margin-top: 2px; }
+
+    .cell-fault .fault-text {
+      max-width: 180px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      color: var(--slate-600);
+    }
+    .cell-fault .cost { font-size: 12px; font-weight: 700; color: var(--blue-brand); margin-top: 2px; }
+
+    /* Inline status dropdown */
+    .status-select {
+      appearance: none;
+      -webkit-appearance: none;
+      padding: 6px 28px 6px 10px;
+      border-radius: 100px;
+      font-family: 'Inter', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      outline: none;
+      border: 1.5px solid transparent;
+      background-repeat: no-repeat;
+      background-position: right 8px center;
+      background-size: 10px;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+      transition: all var(--transition);
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .status-select.s-pending   { background-color: #fef9c3; color: #854d0e; border-color: #fde047; }
+    .status-select.s-progress  { background-color: #dbeafe; color: #1e40af; border-color: #93c5fd; }
+    .status-select.s-completed { background-color: #dcfce7; color: #166534; border-color: #86efac; }
+    .status-select.s-delivered { background-color: #ede9fe; color: #5b21b6; border-color: #c4b5fd; }
+    .status-select.s-cancelled { background-color: #fee2e2; color: #9f1239; border-color: #fca5a5; }
+
+    /* Action buttons */
+    .actions-cell { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+
+    .btn-action {
+      border: none;
+      padding: 7px 11px;
+      font-size: 11px;
+      font-weight: 600;
+      border-radius: 7px;
+      cursor: pointer;
+      transition: all var(--transition);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      white-space: nowrap;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .btn-sms    { background: #dbeafe; color: #1e40af; border: 1px solid #93c5fd; }
+    .btn-sms:hover    { background: #1d4ed8; color: white; }
+    .btn-print  { background: #1e293b; color: white; }
+    .btn-print:hover  { background: #334155; }
+    .btn-edit   { background: var(--slate-100); color: var(--slate-700); border: 1px solid var(--slate-200); }
+    .btn-edit:hover   { background: var(--slate-200); }
+    .btn-delete { background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; }
+    .btn-delete:hover { background: var(--red-accent); color: white; border-color: var(--red-accent); }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--slate-400);
+    }
+    .empty-state-icon { font-size: 48px; margin-bottom: 12px; }
+    .empty-state h3 { font-size: 16px; font-weight: 600; color: var(--slate-500); margin-bottom: 6px; }
+    .empty-state p { font-size: 13px; }
+
+    /* ─────────────── TOAST ─────────────── */
+    #toast-container {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .toast {
+      background: var(--slate-800);
+      color: white;
+      padding: 14px 20px;
+      border-radius: var(--radius-md);
+      font-size: 14px;
+      font-weight: 500;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+      border-left: 4px solid var(--blue-brand);
+      animation: toast-in 0.3s ease;
+      min-width: 260px;
+      max-width: 380px;
+    }
+    .toast.success { border-left-color: var(--green); }
+    .toast.error   { border-left-color: var(--red-accent); }
+
+    @keyframes toast-in {
+      from { opacity: 0; transform: translateX(20px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+
+    /* ─────────────── MODAL ─────────────── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15,23,42,0.55);
+      backdrop-filter: blur(4px);
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+    }
+    .modal-overlay.open { opacity: 1; pointer-events: all; }
+
+    .modal {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      padding: 32px;
+      width: 100%;
+      max-width: 480px;
+      box-shadow: 0 32px 80px rgba(0,0,0,0.25);
+      transform: scale(0.95);
+      transition: transform 0.2s;
+    }
+    .modal-overlay.open .modal { transform: scale(1); }
+
+    .modal-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--slate-800);
+      margin-bottom: 8px;
+    }
+    .modal-body { color: var(--slate-600); font-size: 14px; margin-bottom: 24px; line-height: 1.6; }
+    .modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+
+    .btn-danger {
+      background: var(--red-accent);
+      color: white;
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: 10px 20px;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      transition: all var(--transition);
+    }
+    .btn-danger:hover { background: #dc2626; }
+
+    /* ─────────────── OVERLAY for sidebar on mobile ─────────────── */
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(15,23,42,0.4);
+      z-index: 89;
+      backdrop-filter: blur(2px);
+    }
+    .sidebar-overlay.open { display: block; }
+
+    /* ─────────────── SMS MODAL ─────────────── */
+    .sms-preview {
+      background: var(--slate-100);
+      border-radius: var(--radius-sm);
+      padding: 14px;
+      font-size: 13px;
+      color: var(--slate-700);
+      line-height: 1.6;
+      white-space: pre-wrap;
+      margin-bottom: 16px;
+      border-left: 3px solid var(--blue-brand);
+    }
+
+    /* ─────────────── RESPONSIVE ─────────────── */
+    @media (max-width: 900px) {
+      .hamburger { display: flex; }
+      .sidebar {
+        transform: translateX(calc(-1 * var(--sidebar-w)));
+      }
+      .sidebar.open { transform: translateX(0); }
+      .content-area { margin-left: 0; padding: 20px 16px; }
+      .form-grid { grid-template-columns: 1fr; }
+      .form-group.full { grid-column: 1; }
+      .topbar-hotline { display: none; }
+    }
+
+    @media (max-width: 640px) {
+      .panel-title { font-size: 18px; }
+      .filter-tabs { gap: 4px; }
+      .filter-tab { padding: 7px 11px; font-size: 11px; }
+      .repair-table th:nth-child(4),
+      .repair-table td:nth-child(4) { display: none; }
+      .topbar { padding: 0 16px; gap: 10px; }
+      .topbar-title-group h1 { font-size: 14px; }
+      .btn-logout span { display: none; }
+    }
+
+    @media (max-width: 480px) {
+      .repair-table th:nth-child(3),
+      .repair-table td:nth-child(3) { display: none; }
+      .actions-cell { gap: 4px; }
+      .btn-action { padding: 6px 8px; font-size: 10px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════
+     TOP NAVIGATION BAR
+════════════════════════════════════════════ -->
+<header class="topbar">
+  <button class="hamburger" id="hamburger" onclick="toggleSidebar()" aria-label="Toggle menu">
+    <span></span><span></span><span></span>
+  </button>
+
+  <div class="topbar-brand">
+    <img src="/image_2.png" alt="Star Gate Logo" class="topbar-logo"
+         onerror="this.style.display='none'; document.getElementById('topLogoFallback').style.display='flex'">
+    <div class="topbar-logo-fallback" id="topLogoFallback">⚙️</div>
+    <div class="topbar-title-group">
+      <h1>STAR GATE TECHNOLOGIES</h1>
+      <p>Repair Intake &amp; Job Management Desk</p>
+    </div>
+  </div>
+
+  <div class="topbar-right">
+    <div class="topbar-hotline">
+      <strong>Hotline:</strong> 070-3698910<br>
+      <span style="font-size:10px;">Batuwatta, Ragama</span>
+    </div>
+
+    <div class="user-chip" id="userChip">
+      <div class="user-avatar" id="userAvatar">A</div>
+      <div>
+        <div class="user-name" id="userNameDisplay">Loading...</div>
+        <div class="user-role" id="userRoleDisplay">...</div>
+      </div>
+    </div>
+
+    <button class="btn-logout" onclick="handleLogout()">
+      <span>Sign Out</span> 🚪
+    </button>
+  </div>
+</header>
+
+<!-- ═══════════════════════════════════════════
+     SIDEBAR
+════════════════════════════════════════════ -->
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-section">
+    <div class="sidebar-label">Navigation</div>
+    <button class="nav-item active" id="nav-checkin" onclick="showPanel('checkin')">
+      <span class="nav-icon">📋</span> New Check-In
+    </button>
+    <button class="nav-item" id="nav-dashboard" onclick="showPanel('dashboard')">
+      <span class="nav-icon">📊</span> Repair Dashboard
+    </button>
+  </div>
+
+  <div class="sidebar-divider"></div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-label">Live Status</div>
+  </div>
+  <div class="stat-pills" id="sidebarStats">
+    <div class="stat-pill pill-pending">⏳ Pending <span class="count" id="cnt-pending">0</span></div>
+    <div class="stat-pill pill-progress">🔧 In Progress <span class="count" id="cnt-progress">0</span></div>
+    <div class="stat-pill pill-completed">✅ Completed <span class="count" id="cnt-completed">0</span></div>
+    <div class="stat-pill pill-delivered">📦 Delivered <span class="count" id="cnt-delivered">0</span></div>
+    <div class="stat-pill pill-cancelled">❌ Cancelled <span class="count" id="cnt-cancelled">0</span></div>
+  </div>
+</aside>
+
+<!-- ═══════════════════════════════════════════
+     CONTENT AREA
+════════════════════════════════════════════ -->
+<main class="page-body">
+  <div class="content-area">
+
+    <!-- ── NEW REPAIR CHECK-IN PANEL ── -->
+    <div class="panel active" id="panel-checkin">
+      <div class="panel-header">
+        <div>
+          <div class="panel-title" id="formPanelTitle">📋 New Repair Check-In</div>
+          <div class="panel-subtitle" id="formPanelSubtitle">Register a new device for repair service</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-body">
+          <div class="card-title" id="formCardTitle">
+            ➕ Device Intake Form
+          </div>
+
+          <form id="repairForm" onsubmit="handleFormSubmit(event)">
+            <input type="hidden" id="editingJobId" value="">
+
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="custName">Customer Name *</label>
+                <input type="text" id="custName" class="form-input" required
+                       placeholder="e.g., Sanka Wijerathne">
+              </div>
+
+              <div class="form-group">
+                <label for="custPhone">Phone Number *</label>
+                <input type="text" id="custPhone" class="form-input" required
+                       placeholder="e.g., 0703698910">
+              </div>
+
+              <div class="form-group">
+                <label for="deviceModel">Device Model *</label>
+                <input type="text" id="deviceModel" class="form-input" required
+                       placeholder="e.g., iPhone 16 Pro">
+              </div>
+
+              <div class="form-group">
+                <label for="deviceImei">IMEI / Serial Number *</label>
+                <input type="text" id="deviceImei" class="form-input" required
+                       placeholder="Device IMEI or Serial No.">
+              </div>
+
+              <div class="form-group full">
+                <label for="deviceFault">Reported Fault / Problem *</label>
+                <textarea id="deviceFault" class="form-input" rows="3" required
+                          placeholder="e.g., Display damaged, no power, Micro-soldering required..."></textarea>
+              </div>
+
+              <div class="form-group">
+                <label for="estCost">Estimated Cost (LKR)</label>
+                <input type="number" id="estCost" class="form-input" placeholder="0.00" min="0">
+              </div>
+
+              <div class="form-group">
+                <label for="jobStatus">Initial Status</label>
+                <select id="jobStatus" class="form-input">
+                  <option value="Pending">⏳ Pending</option>
+                  <option value="In Progress">🔧 In Progress</option>
+                  <option value="Completed">✅ Completed</option>
+                  <option value="Cancelled">❌ Cancelled</option>
+                  <option value="Delivered">📦 Delivered</option>
+                </select>
+              </div>
+
+              <div class="form-group full">
+                <label for="jobNotes">Internal Notes (optional)</label>
+                <textarea id="jobNotes" class="form-input" rows="2"
+                          placeholder="Technician notes, parts needed, etc."></textarea>
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button type="submit" class="btn-primary" id="submitBtn">
+                <span>✅</span> <span id="submitBtnText">Register Job</span>
+              </button>
+              <button type="button" class="btn-secondary" id="cancelEditBtn"
+                      onclick="resetFormState()" style="display:none;">
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── ACTIVE REPAIR DASHBOARD PANEL ── -->
+    <div class="panel" id="panel-dashboard">
+      <div class="panel-header">
+        <div>
+          <div class="panel-title">📊 Active Repair Dashboard</div>
+          <div class="panel-subtitle">Track and manage all repair jobs</div>
+        </div>
+        <button class="btn-primary" style="width:auto; padding: 11px 20px;"
+                onclick="showPanel('checkin')">
+          ➕ New Check-In
+        </button>
+      </div>
+
+      <!-- Search & Filter -->
+      <div class="dashboard-controls">
+        <input type="text" class="search-input" id="searchField"
+               placeholder="Search by customer, model, IMEI, or Job ID..."
+               oninput="filterRepairs()">
+
+        <div class="filter-tabs">
+          <button class="filter-tab active" data-filter="All" onclick="setFilter('All', this)">All</button>
+          <button class="filter-tab" data-filter="Pending" onclick="setFilter('Pending', this)">⏳ Pending</button>
+          <button class="filter-tab" data-filter="In Progress" onclick="setFilter('In Progress', this)">🔧 In Progress</button>
+          <button class="filter-tab" data-filter="Completed" onclick="setFilter('Completed', this)">✅ Completed</button>
+          <button class="filter-tab" data-filter="Delivered" onclick="setFilter('Delivered', this)">📦 Delivered</button>
+          <button class="filter-tab" data-filter="Cancelled" onclick="setFilter('Cancelled', this)">❌ Cancelled</button>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="card">
+        <div class="table-wrapper">
+          <table class="repair-table" id="repairTable">
+            <thead>
+              <tr>
+                <th>Job ID / Date</th>
+                <th>Customer</th>
+                <th>Device</th>
+                <th>Fault / Cost</th>
+                <th>Status</th>
+                <th style="min-width: 220px;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="repairTableBody"></tbody>
+          </table>
+
+          <div class="empty-state" id="emptyState" style="display:none;">
+            <div class="empty-state-icon">🔧</div>
+            <h3>No repairs found</h3>
+            <p>No records match your current search or filter.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- ═══════════════════════════════════════════
+     MODALS
+════════════════════════════════════════════ -->
+
+<!-- Delete Confirm Modal -->
+<div class="modal-overlay" id="deleteModal">
+  <div class="modal">
+    <div class="modal-title">🗑️ Delete Repair Record</div>
+    <div class="modal-body" id="deleteModalBody">
+      Are you sure you want to permanently delete this record? This action cannot be undone.
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal('deleteModal')">Cancel</button>
+      <button class="btn-danger" id="confirmDeleteBtn">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- SMS Modal -->
+<div class="modal-overlay" id="smsModal">
+  <div class="modal">
+    <div class="modal-title">📱 Send SMS to Customer</div>
+    <div class="modal-body">
+      <p style="font-size:12px; color:var(--slate-500); margin-bottom:10px;" id="smsJobInfo"></p>
+      <p style="margin-bottom:10px; font-size:13px; font-weight:600;">Message Preview:</p>
+      <div class="sms-preview" id="smsPreview" contenteditable="true"
+           style="min-height:80px; cursor:text;"></div>
+      <p style="font-size:11px; color:var(--slate-400); margin:6px 0 14px;">✏️ You can edit the message above before sending.</p>
+      <div class="form-group">
+        <label>Recipient Number</label>
+        <input type="text" id="smsPhone" class="form-input" placeholder="07XXXXXXXX">
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal('smsModal')">Cancel</button>
+      <button class="btn-primary" style="width:auto;" onclick="confirmSendSMS()">
+        📤 Send SMS
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast container -->
+<div id="toast-container"></div>
+
+<!-- ═══════════════════════════════════════════
+     JAVASCRIPT
+════════════════════════════════════════════ -->
+<script>
+// ── State ──
+let allRepairs = [];
+let currentFilter = 'All';
+let pendingDeleteId = null;
+let pendingSmsJob = null;
+let currentUser = null;
+
+// ── Boot ──
+async function boot() {
+  try {
+    const r = await fetch('/api/me');
+    if (!r.ok) { window.location.href = '/'; return; }
+    const data = await r.json();
+    currentUser = data.user;
+
+    document.getElementById('userNameDisplay').textContent = currentUser.full_name;
+    document.getElementById('userRoleDisplay').textContent = currentUser.role;
+    document.getElementById('userAvatar').textContent = currentUser.full_name.charAt(0).toUpperCase();
+
+    await loadRepairs();
+  } catch (e) {
+    window.location.href = '/';
+  }
+}
+
+// ── API helpers ──
+async function api(method, url, body) {
+  const opts = {
+    method,
+    headers: { 'Content-Type': 'application/json' }
+  };
+  if (body) opts.body = JSON.stringify(body);
+  const r = await fetch(url, opts);
+  const data = await r.json();
+  if (!r.ok) throw new Error(data.error || 'Request failed');
+  return data;
+}
+
+// ── Load repairs ──
+async function loadRepairs() {
+  try {
+    allRepairs = await api('GET', '/api/repairs');
+    updateSidebarStats();
+    renderTable();
+  } catch (e) {
+    showToast('Failed to load repairs: ' + e.message, 'error');
+  }
+}
+
+// ── Sidebar stats ──
+function updateSidebarStats() {
+  const cnt = { Pending: 0, 'In Progress': 0, Completed: 0, Delivered: 0, Cancelled: 0 };
+  allRepairs.forEach(j => { if (cnt[j.status] !== undefined) cnt[j.status]++; });
+  document.getElementById('cnt-pending').textContent   = cnt['Pending'];
+  document.getElementById('cnt-progress').textContent  = cnt['In Progress'];
+  document.getElementById('cnt-completed').textContent = cnt['Completed'];
+  document.getElementById('cnt-delivered').textContent = cnt['Delivered'];
+  document.getElementById('cnt-cancelled').textContent = cnt['Cancelled'];
+}
+
+// ── Form submit ──
+async function handleFormSubmit(e) {
+  e.preventDefault();
+  const editId = document.getElementById('editingJobId').value;
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+
+  const payload = {
+    customer: document.getElementById('custName').value,
+    phone:    document.getElementById('custPhone').value,
+    model:    document.getElementById('deviceModel').value,
+    imei:     document.getElementById('deviceImei').value,
+    fault:    document.getElementById('deviceFault').value,
+    cost:     document.getElementById('estCost').value || 'TBD',
+    status:   document.getElementById('jobStatus').value,
+    notes:    document.getElementById('jobNotes').value
+  };
+
+  try {
+    if (editId) {
+      await api('PUT', `/api/repairs/${editId}`, payload);
+      showToast('✅ Job updated successfully!', 'success');
+    } else {
+      await api('POST', '/api/repairs', payload);
+      showToast('✅ New repair job registered!', 'success');
+    }
+    resetFormState();
+    await loadRepairs();
+    showPanel('dashboard');
+  } catch (err) {
+    showToast('❌ ' + err.message, 'error');
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+// ── Edit job ──
+function startEditJob(id) {
+  const job = allRepairs.find(j => j.id === id);
+  if (!job) return;
+
+  document.getElementById('editingJobId').value = job.id;
+  document.getElementById('custName').value     = job.customer;
+  document.getElementById('custPhone').value    = job.phone;
+  document.getElementById('deviceModel').value  = job.model;
+  document.getElementById('deviceImei').value   = job.imei;
+  document.getElementById('deviceFault').value  = job.fault;
+  document.getElementById('estCost').value      = job.cost === 'TBD' ? '' : job.cost;
+  document.getElementById('jobStatus').value    = job.status;
+  document.getElementById('jobNotes').value     = job.notes || '';
+
+  document.getElementById('formPanelTitle').textContent   = `✏️ Editing Job: ${job.id}`;
+  document.getElementById('formPanelSubtitle').textContent = `Customer: ${job.customer} | ${job.model}`;
+  document.getElementById('formCardTitle').textContent    = `✏️ Edit Job Details (${job.id})`;
+  document.getElementById('submitBtnText').textContent    = 'Update Job';
+  document.getElementById('submitBtn').classList.add('btn-success');
+  document.getElementById('cancelEditBtn').style.display = 'block';
+
+  showPanel('checkin');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ── Reset form ──
+function resetFormState() {
+  document.getElementById('repairForm').reset();
+  document.getElementById('editingJobId').value = '';
+  document.getElementById('formPanelTitle').textContent   = '📋 New Repair Check-In';
+  document.getElementById('formPanelSubtitle').textContent = 'Register a new device for repair service';
+  document.getElementById('formCardTitle').textContent    = '➕ Device Intake Form';
+  document.getElementById('submitBtnText').textContent    = 'Register Job';
+  document.getElementById('submitBtn').classList.remove('btn-success');
+  document.getElementById('cancelEditBtn').style.display = 'none';
+}
+
+// ── Update status (inline dropdown) ──
+async function updateStatus(id, newStatus) {
+  try {
+    await api('PATCH', `/api/repairs/${id}/status`, { status: newStatus });
+    await loadRepairs();
+    showToast(`Status updated to "${newStatus}"`, 'success');
+  } catch (err) {
+    showToast('❌ ' + err.message, 'error');
+    await loadRepairs(); // refresh to revert dropdown
+  }
+}
+
+// ── Delete job ──
+function promptDelete(id) {
+  pendingDeleteId = id;
+  const job = allRepairs.find(j => j.id === id);
+  document.getElementById('deleteModalBody').innerHTML =
+    `Are you sure you want to permanently delete <strong>${id}</strong> (${job ? job.customer : ''})?<br>This cannot be undone.`;
+  document.getElementById('confirmDeleteBtn').onclick = confirmDelete;
+  openModal('deleteModal');
+}
+
+async function confirmDelete() {
+  if (!pendingDeleteId) return;
+  try {
+    await api('DELETE', `/api/repairs/${pendingDeleteId}`);
+    closeModal('deleteModal');
+    await loadRepairs();
+    showToast('🗑️ Record deleted.', 'success');
+  } catch (err) {
+    showToast('❌ ' + err.message, 'error');
+  }
+  pendingDeleteId = null;
+}
+
+// ── SMS ──
+function promptSMS(id) {
+  const job = allRepairs.find(j => j.id === id);
+  if (!job) return;
+  pendingSmsJob = job;
+
+  const msg = buildSMSMessage(job, job.status);
+  document.getElementById('smsPreview').textContent = msg;
+  document.getElementById('smsPhone').value = job.phone;
+  document.getElementById('smsJobInfo').textContent =
+    `${job.id} · ${job.customer} · ${job.model} · Status: ${job.status}`;
+  openModal('smsModal');
+}
+
+function buildSMSMessage(job, event) {
+  const e = event || job.status;
+  switch (e) {
+    case 'created':
+      return `Dear ${job.customer}, your ${job.model} has been received at Star Gate Technologies. Job ID: ${job.id}. Estimated cost: LKR ${job.cost}. We'll keep you updated! 📞 070-3698910`;
+    case 'Completed':
+      return `Dear ${job.customer}, great news! Your ${job.model} repair is COMPLETE (Job: ${job.id}). Please collect at your earliest. Repair cost: LKR ${job.cost}. - Star Gate Technologies 📞 070-3698910`;
+    case 'Delivered':
+      return `Dear ${job.customer}, your ${job.model} (Job: ${job.id}) has been delivered. Thank you for choosing Star Gate Technologies! We appreciate your trust. 📞 070-3698910`;
+    case 'In Progress':
+      return `Dear ${job.customer}, your ${job.model} (Job: ${job.id}) is currently being repaired by our technician. We'll notify you when ready. - Star Gate Technologies 📞 070-3698910`;
+    case 'Cancelled':
+      return `Dear ${job.customer}, your repair job ${job.id} for ${job.model} has been cancelled. Please contact us at 070-3698910 for more info. - Star Gate Technologies`;
+    default:
+      return `Dear ${job.customer}, update on Job ${job.id} (${job.model}): Status is now "${e}". - Star Gate Technologies 📞 070-3698910`;
+  }
+}
+
+async function confirmSendSMS() {
+  if (!pendingSmsJob) return;
+  const phone   = document.getElementById('smsPhone').value;
+  const message = document.getElementById('smsPreview').textContent;
+  const jobId   = pendingSmsJob.id;
+
+  const sendBtn = document.querySelector('#smsModal .btn-primary');
+  sendBtn.disabled = true;
+  sendBtn.textContent = '⏳ Sending...';
+
+  try {
+    await api('POST', '/api/sms/send', { phone, message, jobId });
+    closeModal('smsModal');
+    showToast('📱 SMS sent successfully to ' + phone + '!', 'success');
+  } catch (err) {
+    showToast('❌ SMS failed: ' + err.message, 'error');
+  } finally {
+    sendBtn.disabled = false;
+    sendBtn.innerHTML = '📤 Send SMS';
+  }
+  pendingSmsJob = null;
+}
+
+// ── Print receipt ──
+function printReceipt(id) {
+  const job = allRepairs.find(j => j.id === id);
+  if (!job) return;
+
+  const pw = window.open('', '_blank');
+  pw.document.write(`<!DOCTYPE html>
+<html><head>
+  <title>Job Sheet - ${job.id}</title>
+  <style>
+    body { font-family: 'Segoe UI', Arial, sans-serif; padding: 30px; color: #333; }
+    .header { border-bottom: 2px dashed #004ecc; padding-bottom: 15px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+    .logo-img { max-height: 65px; object-fit: contain; }
+    .title { font-size: 20px; font-weight: bold; color: #004ecc; }
+    .meta-table { width: 100%; margin-bottom: 20px; font-size: 14px; border-collapse: collapse; }
+    .meta-table td { padding: 6px; border: 1px solid #e2e8f0; }
+    .section-title { font-weight: bold; background: #f1f5f9; padding: 6px; margin-top: 15px; font-size: 14px; border: 1px solid #e2e8f0; }
+    .content-box { padding: 10px; border: 1px solid #e2e8f0; border-top: none; font-size: 14px; line-height: 1.5; }
+    .terms { font-size: 11px; color: #64748b; margin-top: 25px; border-top: 1px solid #cbd5e1; padding-top: 10px; }
+    .signatures { display: flex; justify-content: space-between; margin-top: 40px; font-size: 13px; }
+    .badge { display:inline-block; padding:3px 10px; border-radius:20px; font-size:12px; font-weight:bold; background:#dbeafe; color:#1e40af; }
+  </style>
+</head><body>
+  <div class="header">
+    <div style="display:flex;align-items:center;gap:12px;">
+      <img src="/image_2.png" alt="Star Gate Logo" class="logo-img" onerror="this.style.display='none'">
+      <div>
+        <div class="title">STAR GATE TECHNOLOGIES</div>
+        <div style="font-size:12px;color:#475569;">400/r, School Rd, Batuwatta, Ragama | 📞 070-3698910</div>
+      </div>
+    </div>
+    <div style="text-align:right;">
+      <div style="font-size:16px;font-weight:bold;color:#ef4444;">REPAIR JOB SHEET</div>
+      <div style="font-size:12px;">Job ID: <strong>${job.id}</strong></div>
+    </div>
+  </div>
+  <table class="meta-table">
+    <tr>
+      <td width="20%"><strong>Customer Name:</strong></td><td>${job.customer}</td>
+      <td width="20%"><strong>Date Intake:</strong></td><td>${job.date}</td>
+    </tr>
+    <tr>
+      <td><strong>Phone Number:</strong></td><td>${job.phone}</td>
+      <td><strong>Status:</strong></td><td><span class="badge">${job.status}</span></td>
+    </tr>
+  </table>
+  <div class="section-title">Device Identification</div>
+  <div class="content-box">
+    <strong>Model / Brand:</strong> ${job.model}<br>
+    <strong>IMEI / SN:</strong> ${job.imei}
+  </div>
+  <div class="section-title">Reported Fault Diagnostics</div>
+  <div class="content-box">${job.fault}</div>
+  ${job.notes ? `<div class="section-title">Technician Notes</div><div class="content-box">${job.notes}</div>` : ''}
+  <div class="section-title" style="background:#dbeafe;color:#1e40af;">Financial Summary</div>
+  <div class="content-box" style="font-size:15px;">
+    Estimated Repair Cost: <strong>LKR ${job.cost}</strong>
+  </div>
+  <div class="terms">
+    <strong>Terms &amp; Conditions:</strong><br>
+    1. Please produce this job sheet when reclaiming your device.<br>
+    2. Warranty applies solely to parts replaced. Water damage or structural drops cancel privileges.<br>
+    3. Shop not liable for non-claimed items beyond 60 storage days.
+  </div>
+  <div class="signatures">
+    <div>Customer Signature: __________________________</div>
+    <div>Authorized Seal: __________________________</div>
+  </div>
+  <script>window.onload=function(){window.print();setTimeout(function(){window.close();},500);}<\/script>
+</body></html>`);
+  pw.document.close();
+}
+
+// ── Filter ──
+let activeFilter = 'All';
+function setFilter(filter, btn) {
+  activeFilter = filter;
+  document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  renderTable();
+}
+
+function filterRepairs() { renderTable(); }
+
+// ── Render table ──
+function renderTable() {
+  const tbody = document.getElementById('repairTableBody');
+  const empty = document.getElementById('emptyState');
+  const query = (document.getElementById('searchField')?.value || '').toLowerCase();
+
+  let records = allRepairs.filter(j => {
+    const matchFilter = activeFilter === 'All' || j.status === activeFilter;
+    const matchSearch = !query || [j.id, j.customer, j.model, j.imei, j.phone]
+      .some(v => v && v.toLowerCase().includes(query));
+    return matchFilter && matchSearch;
+  });
+
+  tbody.innerHTML = '';
+
+  if (records.length === 0) {
+    empty.style.display = 'block';
+    document.getElementById('repairTable').style.display = 'none';
+    return;
+  }
+
+  empty.style.display = 'none';
+  document.getElementById('repairTable').style.display = 'table';
+
+  records.forEach(job => {
+    const statusClass = {
+      'Pending': 'pending', 'In Progress': 'progress',
+      'Completed': 'completed', 'Delivered': 'delivered', 'Cancelled': 'cancelled'
+    }[job.status] || 'pending';
+
+    const selectClass = {
+      'Pending': 's-pending', 'In Progress': 's-progress',
+      'Completed': 's-completed', 'Delivered': 's-delivered', 'Cancelled': 's-cancelled'
+    }[job.status] || 's-pending';
+
+    const fault = (job.fault || '').length > 40
+      ? job.fault.substring(0, 40) + '...' : job.fault;
+
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td>
+        <div class="cell-id">
+          <strong>${job.id}</strong>
+          <div class="date">${job.date || ''}</div>
+        </div>
+      </td>
+      <td>
+        <div class="cell-customer">
+          <div class="name">${job.customer}</div>
+          <div class="phone">📞 ${job.phone}</div>
+        </div>
+      </td>
+      <td>
+        <div class="cell-device">
+          <div class="model">${job.model}</div>
+          <div class="imei">IMEI: ${job.imei}</div>
+        </div>
+      </td>
+      <td>
+        <div class="cell-fault">
+          <div class="fault-text" title="${job.fault}">${fault}</div>
+          <div class="cost">LKR ${job.cost}</div>
+        </div>
+      </td>
+      <td>
+        <select class="status-select ${selectClass}"
+                onchange="updateStatus('${job.id}', this.value); updateSelectStyle(this)">
+          <option value="Pending"     ${job.status==='Pending'     ?'selected':''}>⏳ Pending</option>
+          <option value="In Progress" ${job.status==='In Progress' ?'selected':''}>🔧 In Progress</option>
+          <option value="Completed"   ${job.status==='Completed'   ?'selected':''}>✅ Completed</option>
+          <option value="Delivered"   ${job.status==='Delivered'   ?'selected':''}>📦 Delivered</option>
+          <option value="Cancelled"   ${job.status==='Cancelled'   ?'selected':''}>❌ Cancelled</option>
+        </select>
+      </td>
+      <td>
+        <div class="actions-cell">
+          <button class="btn-action btn-sms"   onclick="promptSMS('${job.id}')">📱 SMS</button>
+          <button class="btn-action btn-print" onclick="printReceipt('${job.id}')">🖨️ Slip</button>
+          <button class="btn-action btn-edit"  onclick="startEditJob('${job.id}')">✏️ Edit</button>
+          <button class="btn-action btn-delete" onclick="promptDelete('${job.id}')">🗑️</button>
+        </div>
+      </td>
+    `;
+    tbody.appendChild(row);
+  });
+}
+
+// ── Update select style on change ──
+function updateSelectStyle(sel) {
+  const map = {
+    'Pending': 's-pending', 'In Progress': 's-progress',
+    'Completed': 's-completed', 'Delivered': 's-delivered', 'Cancelled': 's-cancelled'
+  };
+  sel.className = 'status-select ' + (map[sel.value] || 's-pending');
+}
+
+// ── Panel navigation ──
+function showPanel(name) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById(`panel-${name}`).classList.add('active');
+  document.getElementById(`nav-${name}`)?.classList.add('active');
+  closeSidebar();
+}
+
+// ── Sidebar toggle ──
+function toggleSidebar() {
+  const sb = document.getElementById('sidebar');
+  const hb = document.getElementById('hamburger');
+  const ov = document.getElementById('sidebarOverlay');
+  sb.classList.toggle('open');
+  hb.classList.toggle('open');
+  ov.classList.toggle('open');
+}
+
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('hamburger').classList.remove('open');
+  document.getElementById('sidebarOverlay').classList.remove('open');
+}
+
+// ── Modal helpers ──
+function openModal(id)  { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+// Close modal on backdrop click
+document.querySelectorAll('.modal-overlay').forEach(ov => {
+  ov.addEventListener('click', e => { if (e.target === ov) ov.classList.remove('open'); });
+});
+
+// ── Toast ──
+function showToast(msg, type = 'info') {
+  const container = document.getElementById('toast-container');
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  toast.textContent = msg;
+  container.appendChild(toast);
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateX(20px)';
+    toast.style.transition = '0.3s';
+    setTimeout(() => toast.remove(), 300);
+  }, 3500);
+}
+
+// ── Logout ──
+async function handleLogout() {
+  await fetch('/api/logout', { method: 'POST' });
+  window.location.href = '/';
+}
+
+// ── Init ──
+boot();
+</script>
+</body>
+</html>

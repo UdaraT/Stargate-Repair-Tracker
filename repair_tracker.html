@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Star Gate Technologies - Repair Tracking System</title>
+    <style>
+        :root {
+            --primary-blue: #004ecc;
+            --accent-red: #ef4444;
+            --gray-dark: #334155;
+            --gray-light: #f8fafc;
+            --border-color: #cbd5e1;
+
+            --status-pending: #f59e0b;
+            --status-progress: #3b82f6;
+            --status-completed: #10b981;
+            --status-delivered: #1e1b4b;
+            --status-cancelled: #64748b;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f1f5f9;
+            color: var(--gray-dark);
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1350px;
+            margin: 0 auto;
+        }
+
+        .app-header {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            border-top: 4px solid var(--primary-blue);
+        }
+
+        .brand-area {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .brand-logo {
+            max-height: 70px;
+            object-fit: contain;
+        }
+
+        .brand-text h1 {
+            font-size: 22px;
+            color: var(--primary-blue);
+            letter-spacing: 1px;
+        }
+
+        .brand-text p {
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        .main-layout {
+            display: grid;
+            grid-template-columns: 1fr 2.5fr;
+            gap: 25px;
+        }
+
+        @media (max-width: 1000px) {
+            .main-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--gray-light);
+            color: var(--primary-blue);
+        }
+
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: #475569;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 8px 12px;
+            font-size: 13px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            outline: none;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px rgba(0, 78, 204, 0.1);
+        }
+
+        .btn {
+            width: 100%;
+            background-color: var(--primary-blue);
+            color: white;
+            border: none;
+            padding: 10px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .btn:hover {
+            background-color: #003aa6;
+        }
+
+        .btn-update-mode {
+            background-color: #10b981 !important;
+        }
+
+        .btn-update-mode:hover {
+            background-color: #059669 !important;
+        }
+
+        .search-bar {
+            margin-bottom: 15px;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .tracker-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        .tracker-table th {
+            background-color: var(--gray-light);
+            text-align: left;
+            padding: 12px 10px;
+            font-weight: 600;
+            color: #475569;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .tracker-table td {
+            padding: 12px 10px;
+            border-bottom: 1px solid #f1f5f9;
+            vertical-align: middle;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            font-size: 11px;
+            font-weight: bold;
+            border-radius: 20px;
+            text-transform: uppercase;
+            text-align: center;
+        }
+
+        .badge-pending {
+            background-color: #fef3c7;
+            color: #d97706;
+        }
+
+        .badge-progress {
+            background-color: #dbeafe;
+            color: #2563eb;
+        }
+
+        .badge-completed {
+            background-color: #d1fae5;
+            color: #059669;
+        }
+
+        .badge-delivered {
+            background-color: #e0e7ff;
+            color: #4338ca;
+        }
+
+        .badge-cancelled {
+            background-color: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .actions-cell {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .action-select {
+            padding: 4px;
+            font-size: 12px;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-action {
+            border: none;
+            padding: 5px 8px;
+            font-size: 11px;
+            font-weight: 600;
+            border-radius: 4px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-print {
+            background-color: #0f172a;
+            color: white;
+        }
+
+        .btn-print:hover {
+            background-color: #334155;
+        }
+
+        .btn-edit {
+            background-color: #e2e8f0;
+            color: #334155;
+            border: 1px solid #cbd5e1;
+        }
+
+        .btn-edit:hover {
+            background-color: #cbd5e1;
+        }
+
+        .btn-delete {
+            background-color: #fee2e2;
+            color: var(--accent-red);
+            border: 1px solid #fca5a5;
+        }
+
+        .btn-delete:hover {
+            background-color: var(--accent-red);
+            color: white;
+        }
+
+        .no-data {
+            text-align: center;
+            color: #94a3b8;
+            padding: 30px;
+            font-style: italic;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <header class="app-header">
+            <div class="brand-area">
+                <img src="image_2.png" alt="Star Gate Logo" class="brand-logo" onerror="this.style.display='none'">
+                <div class="brand-text">
+                    <h1>STAR GATE TECHNOLOGIES</h1>
+                    <p>Repair Intake & Job Management Desk</p>
+                </div>
+            </div>
+            <div style="text-align: right; font-size: 13px; color: #64748b;">
+                <strong>Hotline:</strong> 070-3698910<br>
+
+            </div>
+        </header>
+
+        <div class="main-layout">
+
+            <div class="card" id="formCard">
+                <div class="card-title" id="formTitle">New Repair Check-In</div>
+                <form id="repairForm" onsubmit="handleFormSubmit(event)">
+                    <input type="hidden" id="editingJobId" value="">
+
+                    <div class="form-group">
+                        <label>Customer Name</label>
+                        <input type="text" id="custName" required placeholder="e.g., Sanka Wijerathne">
+                    </div>
+                    <div class="form-group">
+                        <label>Phone Number</label>
+                        <input type="text" id="custPhone" required placeholder="e.g., 0703698910">
+                    </div>
+                    <div class="form-group">
+                        <label>Device Model</label>
+                        <input type="text" id="deviceModel" required placeholder="e.g., iPhone 16 Pro">
+                    </div>
+                    <div class="form-group">
+                        <label>IMEI / Serial Number</label>
+                        <input type="text" id="deviceImei" required placeholder="Input device identifiers">
+                    </div>
+                    <div class="form-group">
+                        <label>Reported Fault / Problem</label>
+                        <textarea id="deviceFault" rows="3" required
+                            placeholder="e.g., Display damaged, Micro-soldering required"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Estimated Cost (LKR)</label>
+                        <input type="number" id="estCost" placeholder="0.00">
+                    </div>
+                    <button type="submit" class="btn" id="submitBtn">Register Job</button>
+                </form>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Active Repair Dashboard</div>
+
+                <div class="search-bar">
+                    <input type="text" id="searchField" onkeyup="filterRepairs()"
+                        placeholder="🔍 Quick Search by Customer, Model, or IMEI...">
+                </div>
+
+                <div style="overflow-x: auto;">
+                    <table class="tracker-table">
+                        <thead>
+                            <tr>
+                                <th>Job ID</th>
+                                <th>Customer Details</th>
+                                <th>Device Details</th>
+                                <th>Fault / Cost</th>
+                                <th>Status</th>
+                                <th style="min-width: 260px;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="repairTableBody"></tbody>
+                    </table>
+                    <div id="emptyState" class="no-data">No active device repairs tracked at the moment.</div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        let repairJobs = JSON.parse(localStorage.getItem('sg_repairs')) || [];
+        let jobIdCounter = JSON.parse(localStorage.getItem('sg_job_id')) || 1001;
+
+        function saveToStorage() {
+            localStorage.setItem('sg_repairs', JSON.stringify(repairJobs));
+            localStorage.setItem('sg_job_id', JSON.stringify(jobIdCounter));
+        }
+
+        function handleFormSubmit(e) {
+            e.preventDefault();
+            const editId = document.getElementById('editingJobId').value;
+
+            if (editId) {
+                // Processing Update Logic
+                const index = repairJobs.findIndex(j => j.id === editId);
+                if (index !== -1) {
+                    repairJobs[index].customer = document.getElementById('custName').value;
+                    repairJobs[index].phone = document.getElementById('custPhone').value;
+                    repairJobs[index].model = document.getElementById('deviceModel').value;
+                    repairJobs[index].imei = document.getElementById('deviceImei').value;
+                    repairJobs[index].fault = document.getElementById('deviceFault').value;
+                    repairJobs[index].cost = document.getElementById('estCost').value || 'TBD';
+
+                    saveToStorage();
+                    resetFormState();
+                    renderTable();
+                }
+            } else {
+                // Processing Standard Creation Logic
+                const job = {
+                    id: 'SGT-' + jobIdCounter++,
+                    date: new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }),
+                    customer: document.getElementById('custName').value,
+                    phone: document.getElementById('custPhone').value,
+                    model: document.getElementById('deviceModel').value,
+                    imei: document.getElementById('deviceImei').value,
+                    fault: document.getElementById('deviceFault').value,
+                    cost: document.getElementById('estCost').value || 'TBD',
+                    status: 'Pending'
+                };
+                repairJobs.unshift(job);
+                saveToStorage();
+                document.getElementById('repairForm').reset();
+                renderTable();
+            }
+        }
+
+        function startEditJob(id) {
+            const job = repairJobs.find(j => j.id === id);
+            if (!job) return;
+
+            // Push data to fields
+            document.getElementById('editingJobId').value = job.id;
+            document.getElementById('custName').value = job.customer;
+            document.getElementById('custPhone').value = job.phone;
+            document.getElementById('deviceModel').value = job.model;
+            document.getElementById('deviceImei').value = job.imei;
+            document.getElementById('deviceFault').value = job.fault;
+            document.getElementById('estCost').value = job.cost === 'TBD' ? '' : job.cost;
+
+            // Visual transformation of form container state
+            document.getElementById('formTitle').textContent = `✏️ Edit Job Details (${job.id})`;
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.textContent = "Update Job Details";
+            submitBtn.classList.add('btn-update-mode');
+
+            // Scroll back smoothly to top view panel boundary on desktop layouts
+            document.getElementById('formCard').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function resetFormState() {
+            document.getElementById('repairForm').reset();
+            document.getElementById('editingJobId').value = "";
+            document.getElementById('formTitle').textContent = "New Repair Check-In";
+
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.textContent = "Register Job";
+            submitBtn.classList.remove('btn-update-mode');
+        }
+
+        function updateStatus(id, newStatus) {
+            const index = repairJobs.findIndex(j => j.id === id);
+            if (index !== -1) {
+                repairJobs[index].status = newStatus;
+                saveToStorage();
+                renderTable();
+            }
+        }
+
+        function deleteJob(id) {
+            if (confirm(`Are you sure you want to permanently delete record ${id}?`)) {
+                repairJobs = repairJobs.filter(j => j.id !== id);
+                saveToStorage();
+                if (document.getElementById('editingJobId').value === id) {
+                    resetFormState();
+                }
+                renderTable();
+            }
+        }
+
+        function printCustomerReceipt(id) {
+            const job = repairJobs.find(j => j.id === id);
+            if (!job) return;
+
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+            <html>
+            <head>
+                <title>Job Sheet - ${job.id}</title>
+                <style>
+                    body { font-family: 'Segoe UI', Arial, sans-serif; padding: 30px; color: #333; }
+                    .header { border-bottom: 2px dashed #004ecc; padding-bottom: 15px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+                    .logo-img { max-height: 65px; object-fit: contain; }
+                    .title { font-size: 20px; font-weight: bold; color: #004ecc; }
+                    .meta-table { width: 100%; margin-bottom: 20px; font-size: 14px; border-collapse: collapse; }
+                    .meta-table td { padding: 6px; border: 1px solid #e2e8f0; }
+                    .section-title { font-weight: bold; background: #f1f5f9; padding: 6px; margin-top: 15px; font-size: 14px; border: 1px solid #e2e8f0;}
+                    .content-box { padding: 10px; border: 1px solid #e2e8f0; border-top: none; font-size: 14px; line-height: 1.5; }
+                    .terms { font-size: 11px; color: #64748b; margin-top: 25px; border-top: 1px solid #cbd5e1; padding-top: 10px; }
+                    .signatures { display: flex; justify-content: space-between; margin-top: 40px; font-size: 13px; }
+                </style>
+            </head>
+            <body>
+                <div class="header">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <img src="image_2.png" alt="Star Gate Logo" class="logo-img" onerror="this.style.display='none'">
+                        <div>
+                            <div class="title">STAR GATE TECHNOLOGIES</div>
+                            <div style="font-size:12px; color:#475569;">400/r, School rd, Batuwatta, Ragama | 📞 070-3698910</div>
+                        </div>
+                    </div>
+                    <div style="text-align:right;">
+                        <div style="font-size:16px; font-weight:bold; color:#ef4444;">REPAIR JOB SHEET</div>
+                        <div style="font-size:12px;">Job ID: <strong>${job.id}</strong></div>
+                    </div>
+                </div>
+
+                <table class="meta-table">
+                    <tr>
+                        <td width="20%"><strong>Customer Name:</strong></td><td>${job.customer}</td>
+                        <td width="20%"><strong>Date Intake:</strong></td><td>${job.date}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Phone Number:</strong></td><td>${job.phone}</td>
+                        <td><strong>Status:</strong></td><td>${job.status}</td>
+                    </tr>
+                </table>
+
+                <div class="section-title">Device Identification</div>
+                <div class="content-box">
+                    <strong>Model / Brand:</strong> ${job.model}<br>
+                    <strong>IMEI / SN:</strong> ${job.imei}
+                </div>
+
+                <div class="section-title">Reported Fault Diagnostics</div>
+                <div class="content-box">${job.fault}</div>
+
+                <div class="section-title" style="background:#dbeafe; color:#1e40af;">Financial Summary</div>
+                <div class="content-box" style="font-size:15px;">
+                    Estimated Cost Repair: <strong>LKR ${job.cost}</strong>
+                </div>
+
+                <div class="terms">
+                    <strong>Terms & Conditions:</strong><br>
+                    1. Please produce this job sheet template slip when reclaiming your device.<br>
+                    2. Warranty applies solely to parts replaced. Water entry or structural drops cancel privileges.<br>
+                    3. Shop not liable for non-claimed items beyond 60 storage days safely.
+                </div>
+
+                <div class="signatures">
+                    <div>Customer Signature: __________________________</div>
+                    <div>Authorized Seal: __________________________</div>
+                </div>
+
+                <script>window.onload = function() { window.print(); setTimeout(function(){ window.close(); }, 500); }</s` + `cript>
+            </body>
+            </html>
+        `);
+            printWindow.document.close();
+        }
+
+        function renderTable(filteredData = null) {
+            const target = document.getElementById('repairTableBody');
+            const emptyState = document.getElementById('emptyState');
+            const records = filteredData || repairJobs;
+
+            target.innerHTML = '';
+
+            if (records.length === 0) {
+                emptyState.style.display = 'block';
+                return;
+            }
+            emptyState.style.display = 'none';
+
+            records.forEach(job => {
+                let badgeClass = 'badge-pending';
+                if (job.status === 'In Progress') badgeClass = 'badge-progress';
+                if (job.status === 'Completed') badgeClass = 'badge-completed';
+                if (job.status === 'Delivered') badgeClass = 'badge-delivered';
+                if (job.status === 'Cancelled') badgeClass = 'badge-cancelled';
+
+                const row = `
+                <tr>
+                    <td><strong>${job.id}</strong><br><span style="color:#64748b; font-size:11px;">${job.date || ''}</span></td>
+                    <td>${job.customer}<br><span style="color:#64748b; font-size:11px;">📞 ${job.phone}</span></td>
+                    <td>${job.model}<br><span style="color:#64748b; font-size:11px;">IMEI: ${job.imei}</span></td>
+                    <td><span style="font-size:12px; display:inline-block; max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${job.fault}">${job.fault}</span><br><span style="color:var(--primary-blue); font-size:11px; font-weight:600;">LKR ${job.cost}</span></td>
+                    <td><span class="badge ${badgeClass}">${job.status}</span></td>
+                    <td>
+                        <div class="actions-cell">
+                            <select class="action-select" onchange="updateStatus('${job.id}', this.value)">
+                                <option value="Pending" ${job.status === 'Pending' ? 'selected' : ''}>Pending</option>
+                                <option value="In Progress" ${job.status === 'In Progress' ? 'selected' : ''}>In Progress</option>
+                                <option value="Completed" ${job.status === 'Completed' ? 'selected' : ''}>Completed</option>
+                                <option value="Delivered" ${job.status === 'Delivered' ? 'selected' : ''}>Delivered</option>
+                                <option value="Cancelled" ${job.status === 'Cancelled' ? 'selected' : ''}>Cancelled</option>
+                            </select>
+                            <button class="btn-action btn-print" onclick="printCustomerReceipt('${job.id}')">🖨️ Slip</button>
+                            <button class="btn-action btn-edit" onclick="startEditJob('${job.id}')">✏️ Edit</button>
+                            <button class="btn-action btn-delete" onclick="deleteJob('${job.id}')">🗑️</button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+                target.innerHTML += row;
+            });
+        }
+
+        function filterRepairs() {
+            const query = document.getElementById('searchField').value.toLowerCase();
+            const matches = repairJobs.filter(job =>
+                job.customer.toLowerCase().includes(query) ||
+                job.model.toLowerCase().includes(query) ||
+                job.imei.toLowerCase().includes(query) ||
+                job.id.toLowerCase().includes(query)
+            );
+            renderTable(matches);
+        }
+
+        window.onload = renderTable;
+    </script>
+
+</body>
+
+</html>
