@@ -1,4 +1,4 @@
-require('dotenv').config();
+
 const { createClient } = require('@libsql/client');
 
 // Connects to local fallback if ENV vars aren't present during development
