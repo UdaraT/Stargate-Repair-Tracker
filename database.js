@@ -1,11 +1,6 @@
 const { createClient } = require('@libsql/client');
 
-// Sanitize URL and convert libsql:// or http:// to https://
-let rawUrl = (process.env.TURSO_DATABASE_URL || '').trim();
-if (rawUrl.startsWith('libsql://')) {
-  rawUrl = rawUrl.replace('libsql://', 'https://');
-}
-
+const rawUrl = (process.env.TURSO_DATABASE_URL || '').trim();
 const rawToken = (process.env.TURSO_AUTH_TOKEN || '').trim();
 
 const db = createClient({
