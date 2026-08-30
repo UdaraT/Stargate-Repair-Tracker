@@ -1,8 +1,17 @@
 const { createClient } = require('@libsql/client');
 const bcrypt = require('bcryptjs');
 
-const rawUrl = (process.env.TURSO_DATABASE_URL || '').trim();
-const rawToken = (process.env.TURSO_AUTH_TOKEN || '').trim();
+// 1. Remove quotes and spaces just in case
+const rawUrl = (process.env.TURSO_DATABASE_URL || '').replace(/['"]/g, '').trim();
+const rawToken = (process.env.TURSO_AUTH_TOKEN || '').replace(/['"]/g, '').trim();
+
+// 2. Safe Debugging (Will print to Render logs without leaking your secret)
+console.log("=== TURSO CONNECTION TEST ===");
+console.log("URL exists?", !!rawUrl);
+console.log("URL valid format?", rawUrl.startsWith('libsql://') || rawUrl.startsWith('https://'));
+console.log("Token exists?", !!rawToken);
+console.log("Token length:", rawToken.length);
+console.log("=============================");
 
 const db = createClient({
   url: rawUrl || 'file:repairs.db',
