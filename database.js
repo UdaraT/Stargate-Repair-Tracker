@@ -48,14 +48,31 @@ async function initDb() {
       );
     `);
 
-    // --- PATCH: Attempt to add the date column if it's missing from an older database ---
-    try {
-      await db.execute('ALTER TABLE repairs ADD COLUMN date TEXT');
-      console.log('[Turso] Added missing "date" column to repairs table.');
-    } catch (e) {
-      // If the column already exists, this throws an error which we safely ignore.
+    // --- BULK PATCH: Attempt to add ALL potential missing columns ---
+    // This loops through all your columns. If they exist, it ignores the error.
+    // If they are missing, it adds them safely without deleting your data.
+    const columnsToCheck = [
+      "date TEXT",
+      "customer TEXT",
+      "phone TEXT",
+      "model TEXT",
+      "imei TEXT",
+      "fault TEXT",
+      "cost TEXT",
+      "status TEXT DEFAULT 'Pending'",
+      "notes TEXT",
+      "created_by TEXT"
+    ];
+
+    for (const col of columnsToCheck) {
+      try {
+        await db.execute(`ALTER TABLE repairs ADD COLUMN ${col}`);
+        console.log(`[Turso] Added missing column to repairs table: ${col.split(' ')[0]}`);
+      } catch (e) {
+        // Safe to ignore. This just means the column is already there!
+      }
     }
-    // ------------------------------------------------------------------------------------
+    // ----------------------------------------------------------------
 
     // 3. Create default admin if no users exist
     const userCheck = await db.execute('SELECT COUNT(*) as count FROM users');
