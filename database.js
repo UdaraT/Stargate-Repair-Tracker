@@ -48,6 +48,15 @@ async function initDb() {
       );
     `);
 
+    // --- PATCH: Attempt to add the date column if it's missing from an older database ---
+    try {
+      await db.execute('ALTER TABLE repairs ADD COLUMN date TEXT');
+      console.log('[Turso] Added missing "date" column to repairs table.');
+    } catch (e) {
+      // If the column already exists, this throws an error which we safely ignore.
+    }
+    // ------------------------------------------------------------------------------------
+
     // 3. Create default admin if no users exist
     const userCheck = await db.execute('SELECT COUNT(*) as count FROM users');
     if (userCheck.rows[0].count === 0) {
