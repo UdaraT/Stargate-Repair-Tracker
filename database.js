@@ -1,4 +1,5 @@
 const { createClient } = require('@libsql/client');
+const bcrypt = require('bcryptjs');
 
 const rawUrl = (process.env.TURSO_DATABASE_URL || '').trim();
 const rawToken = (process.env.TURSO_AUTH_TOKEN || '').trim();
@@ -10,16 +11,46 @@ const db = createClient({
 
 async function initDb() {
   try {
+    // 1. Create Users Table
+    await db.execute(`
+      CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT UNIQUE,
+        password TEXT,
+        full_name TEXT,
+        role TEXT
+      );
+    `);
+
+    // 2. Create Repairs Table
     await db.execute(`
       CREATE TABLE IF NOT EXISTS repairs (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
+        date TEXT,
         customer TEXT,
-        device TEXT,
-        issue TEXT,
+        phone TEXT,
+        model TEXT,
+        imei TEXT,
+        fault TEXT,
+        cost TEXT,
         status TEXT DEFAULT 'Pending',
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        notes TEXT,
+        created_by TEXT
       );
     `);
+
+    // 3. Create default admin if no users exist
+    const userCheck = await db.execute('SELECT COUNT(*) as count FROM users');
+    if (userCheck.rows[0].count === 0) {
+      const salt = bcrypt.genSaltSync(10);
+      const hash = bcrypt.hashSync('stargate123', salt);
+      await db.execute({
+        sql: 'INSERT INTO users (username, password, full_name, role) VALUES (?, ?, ?, ?)',
+        args: ['admin', hash, 'Admin', 'admin']
+      });
+      console.log('[Turso] Default admin user created.');
+    }
+
     console.log('[Turso] Database initialized successfully.');
   } catch (err) {
     console.error('[Turso] Error initializing tables:', err.message);
@@ -28,4 +59,28 @@ async function initDb() {
 
 initDb();
 
-module.exports = db;
+// Export all the helper functions your server needs
+module.exports = {
+  getUserByUsername: async (username) => {
+    const result = await db.execute({
+      sql: 'SELECT * FROM users WHERE username = ?',
+      args: [username]
+    });
+    return result.rows[0]; // Returns the user or undefined
+  },
+  
+  getAllRepairs: async () => {
+    const result = await db.execute('SELECT * FROM repairs ORDER BY id DESC');
+    return result.rows;
+  },
+
+  createRepair: async (data) => {
+    const result = await db.execute({
+      sql: 'INSERT INTO repairs (date, customer, phone, model, imei, fault, cost, status, notes, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING *',
+      args: [data.date, data.customer, data.phone, data.model, data.imei, data.fault, data.cost, data.status, data.notes, data.created_by]
+    });
+    return result.rows[0];
+  }
+  
+  // Note: You will eventually need to add updateRepair, updateRepairStatus, etc. here as well.
+};
