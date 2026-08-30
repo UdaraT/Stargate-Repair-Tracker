@@ -66,7 +66,7 @@ module.exports = {
       sql: 'SELECT * FROM users WHERE username = ?',
       args: [username]
     });
-    return result.rows[0]; // Returns the user or undefined
+    return result.rows[0]; 
   },
   
   getAllRepairs: async () => {
@@ -80,7 +80,39 @@ module.exports = {
       args: [data.date, data.customer, data.phone, data.model, data.imei, data.fault, data.cost, data.status, data.notes, data.created_by]
     });
     return result.rows[0];
+  },
+
+  updateRepair: async (id, data) => {
+    const result = await db.execute({
+      sql: 'UPDATE repairs SET customer=?, phone=?, model=?, imei=?, fault=?, cost=?, notes=? WHERE id=? RETURNING *',
+      args: [data.customer, data.phone, data.model, data.imei, data.fault, data.cost, data.notes, id]
+    });
+    return result.rows[0];
+  },
+
+  updateRepairStatus: async (id, status) => {
+    const result = await db.execute({
+      sql: 'UPDATE repairs SET status=? WHERE id=? RETURNING *',
+      args: [status, id]
+    });
+    return result.rows[0];
+  },
+
+  deleteRepair: async (id) => {
+    await db.execute({ sql: 'DELETE FROM repairs WHERE id=?', args: [id] });
+  },
+
+  getAllUsers: async () => {
+    const result = await db.execute('SELECT id, username, full_name, role FROM users');
+    return result.rows;
+  },
+
+  createUser: async (username, password, full_name, role) => {
+    const salt = bcrypt.genSaltSync(10);
+    const hash = bcrypt.hashSync(password, salt);
+    await db.execute({
+      sql: 'INSERT INTO users (username, password, full_name, role) VALUES (?, ?, ?, ?)',
+      args: [username, hash, full_name, role]
+    });
   }
-  
-  // Note: You will eventually need to add updateRepair, updateRepairStatus, etc. here as well.
 };
